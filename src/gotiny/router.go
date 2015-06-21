@@ -21,7 +21,7 @@ func (route *Route) Match (URL string) map[string]string {
 	URL = fmt.Sprintf("/%s/", URL)
 	matches := route.regexp.MatchString(URL)
 	if matches {
-		fmt.Println("> ", matches)
+		fmt.Println("Accessing ", URL, " : ", matches)
 		routeExtractedVars := route.regexp.FindAllStringSubmatch(URL,100)
 		var routeVars []string;
 		if len(routeExtractedVars) == 1 {

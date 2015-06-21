@@ -5,50 +5,29 @@ import (
 	"os/exec"
 	"gotiny"
 	"net"
-	// "html/template"
-	// "bytes"
 )
 
 func main() {
-	fmt.Println("Hi")
-
-	Addr := ":8080"
-
+	
+	// port running the Gotiny HTTP server instance
+	portAddr := ":8081"
 
 	// Addr checking
-	listener, err := net.Listen("tcp", Addr)
+	listener, err := net.Listen("tcp", portAddr)
 	if err != nil {
 		panic(err)
 	}
 	listener.Close()
 
-
-	HostURL := fmt.Sprintf("http://localhost%s", Addr)
-	go func() {
-		var cmd *exec.Cmd = exec.Command("open", HostURL)
-		cmd.Run()
-	}()
-
-	// server := web.NewWebServer()
-
-	// server.Route("/", func(connection *web.Connection) {
-	// 	tmpl, _ := template.New("index.tmpl").Parse("Hello {{.Name}} {{.Salute}}!")
-	// 	var doc bytes.Buffer
-	// 	vars := make(map[string]string)
-	// 	vars["Name"] = "Kalyan!"
-	// 	vars["Salute"] = "Good Morning!"
-	// 	tmpl.Execute( &doc, vars )
-	// 	connection.Write(doc.String())
-	// })
-	// server.Route("/test/?", func(connection *web.Connection) {
-	// 	connection.Write("Test Yeah!")
-	// })
-
-	// server.Start()
-
-	tiny := gotiny.NewTinyServer(Addr)
+	// host URL running the instance
+	hostUrl := fmt.Sprintf( "http://localhost%s", portAddr )
+	
+	// instantiating a GoTiny HTTP server
+	tiny := gotiny.NewTinyServer(hostUrl, portAddr)
+	
+	// adding routes
 	tiny.AddHandler("/", func(c *gotiny.TinyConnection){
-		c.Write( "Home" )
+		c.Write( "<h1>Hey there!</h1>" )
 	})
 	tiny.AddHandler("/page/<page_id>", func(c *gotiny.TinyConnection){
 		c.Write( fmt.Sprint(c.Vars, "\n") )
@@ -57,7 +36,11 @@ func main() {
 		c.Write( fmt.Sprint("Student Info:", c.Vars, "\n") )
 	})
 
-	fmt.Print("Starting server at:", HostURL, "\n")
-
+	// start the server. Woohoo!
 	tiny.Start()
+
+	go func() {
+		var cmd *exec.Cmd = exec.Command("open", hostUrl)
+		cmd.Run()
+	}()
 }

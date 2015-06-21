@@ -1,7 +1,7 @@
 package gotiny
 
 import (
-	// "fmt"
+	"fmt"
 	"net/url"
 )
 
@@ -15,6 +15,7 @@ type TinyConnectionHandler func(*TinyConnection)
 
 
 type TinyServer struct {
+	hosturl string
 	server *WebServer
 	routes []*Route
 	handlers []TinyConnectionHandler
@@ -53,12 +54,19 @@ func (tiny *TinyServer) DefaultHandler (connection *Connection) {
 }
 
 func (tiny *TinyServer) Start() {
+	
+	fmt.Println("Starting server at : ", tiny.hosturl);
+	
 	tiny.server.Start()
 }
 
-func NewTinyServer(Addr string) *TinyServer {
+func NewTinyServer(hostUrl string, portAddr string) *TinyServer {
+
+	fmt.Println("### GoTiny says Hello! ###")
+	
 	tiny := &TinyServer{}
-	tiny.server = NewWebServer(Addr)
+	tiny.hosturl = hostUrl
+	tiny.server = NewWebServer(portAddr)
 	tiny.routes = make([]*Route,0)
 	tiny.handlers = make([]TinyConnectionHandler,0)
 	tiny.server.Route("/", tiny.DefaultHandler);
