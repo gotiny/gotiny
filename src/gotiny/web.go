@@ -15,6 +15,7 @@ func (connection *Connection) Write(content string) {
 }
 
 type WebServer struct {
+	Addr	string	
 	server *http.Server
 	mux    *http.ServeMux
 }
@@ -33,10 +34,11 @@ func (server *TinyServer) Hello () {
 	fmt.Println("Hello from WebServer")
 }
 
-func NewWebServer() *WebServer {
+func NewWebServer(Addr string) *WebServer {
 	s := &WebServer{}
+	s.Addr = Addr
 	s.server = &http.Server{
-		Addr: ":8080",
+		Addr: Addr,
 	}
 	s.mux = http.DefaultServeMux
 	handler := new(http.Handler)

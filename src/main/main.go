@@ -8,23 +8,14 @@ import (
 	// "bytes"
 )
 
-// func GenericHandler
-
 func main() {
-	// r1 := gotiny.NewRoute("/page/<page_id>/info")
-	r2 := gotiny.NewRoute("/page/<page_id>")
-	u := "/page/12"
-	// fmt.Println(r1.Match(u))
-	// fmt.Println()
-	fmt.Println(r2.Match(u))
-
-}
-
-func main2() {
 	fmt.Println("Hi")
 
+	Addr := ":8080"
+	HostURL := fmt.Sprintf("http://localhost%s", Addr)
+
 	go func() {
-		var cmd *exec.Cmd = exec.Command("open", "http://localhost:8080/")
+		var cmd *exec.Cmd = exec.Command("open", HostURL)
 		cmd.Run()
 	}()
 
@@ -45,7 +36,7 @@ func main2() {
 
 	// server.Start()
 
-	tiny := gotiny.NewTinyServer()
+	tiny := gotiny.NewTinyServer(Addr)
 	tiny.AddHandler("/", func(c *gotiny.TinyConnection){
 		c.Write( "Home" )
 	})

@@ -56,9 +56,9 @@ func (tiny *TinyServer) Start() {
 	tiny.server.Start()
 }
 
-func NewTinyServer() *TinyServer {
+func NewTinyServer(Addr string) *TinyServer {
 	tiny := &TinyServer{}
-	tiny.server = NewWebServer()
+	tiny.server = NewWebServer(Addr)
 	tiny.routes = make([]*Route,0)
 	tiny.handlers = make([]TinyConnectionHandler,0)
 	tiny.server.Route("/", tiny.DefaultHandler);

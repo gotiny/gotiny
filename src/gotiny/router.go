@@ -17,6 +17,8 @@ type Route struct {
 }
 
 func (route *Route) Match (URL string) map[string]string {
+	URL = strings.Trim(URL,"/")
+	URL = fmt.Sprintf("/%s/", URL)
 	matches := route.regexp.MatchString(URL)
 	if matches {
 		fmt.Println("> ", matches)
