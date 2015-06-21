@@ -31,10 +31,6 @@ func (route *Route) Match (URL string) map[string]string {
 			}
 		}
 
-		fmt.Println("> ", route.variablesNames)
-		fmt.Println("> ", routeExtractedVars)
-		fmt.Println("> ", routeVars)
-
 		var variableMapping map[string]string;
 		if len(route.variablesNames) == len(routeVars) {
 			variableMapping = make(map[string]string)
@@ -72,7 +68,7 @@ func NewRoute(routeFormat string) *Route {
 	}
 	route.variablesNames = variablesNames
 	routeRegex = fmt.Sprint(routeRegex,"/$")
-	fmt.Println("REGEX >>> ", routeRegex)
+	// fmt.Println("REGEX >>> ", routeRegex)
 	route.regexp, _ = regexp.Compile(routeRegex)
 
 	return route

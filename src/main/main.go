@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 	"gotiny"
+	"net"
 	// "html/template"
 	// "bytes"
 )
@@ -12,8 +13,17 @@ func main() {
 	fmt.Println("Hi")
 
 	Addr := ":8080"
-	HostURL := fmt.Sprintf("http://localhost%s", Addr)
 
+
+	// Addr checking
+	listener, err := net.Listen("tcp", Addr)
+	if err != nil {
+		panic(err)
+	}
+	listener.Close()
+
+
+	HostURL := fmt.Sprintf("http://localhost%s", Addr)
 	go func() {
 		var cmd *exec.Cmd = exec.Command("open", HostURL)
 		cmd.Run()
@@ -46,5 +56,8 @@ func main() {
 	tiny.AddHandler("/page/<page_id>/info", func(c *gotiny.TinyConnection){
 		c.Write( fmt.Sprint("Student Info:", c.Vars, "\n") )
 	})
+
+	fmt.Print("Starting server at:", HostURL, "\n")
+
 	tiny.Start()
 }
