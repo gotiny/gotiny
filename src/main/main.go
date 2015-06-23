@@ -2,45 +2,49 @@ package main
 
 import (
 	"fmt"
-	"os/exec"
 	"gotiny"
-	"net"
 )
 
 func main() {
 	
-	// port running the Gotiny HTTP server instance
-	portAddr := ":8081"
+	// host running the Gotiny HTTP server instance
+	Addr := "localhost:8081"
 
 	// Addr checking
-	listener, err := net.Listen("tcp", portAddr)
-	if err != nil {
-		panic(err)
+	if _, error := gotiny.IsHostAvailable(Addr); error != nil {
+		panic(error)
 	}
-	listener.Close()
 
-	// host URL running the instance
-	hostUrl := fmt.Sprintf( "http://localhost%s", portAddr )
 	
 	// instantiating a GoTiny HTTP server
-	tiny := gotiny.NewTinyServer(hostUrl, portAddr)
+	tiny := gotiny.NewTinyServer(Addr)
 	
 	// adding routes
 	tiny.AddHandler("/", func(c *gotiny.TinyConnection){
-		c.Write( "<h1>Hey there!</h1>" )
+		c.WriteString( "<h1>Hey there!</h1>" )
+	})
+	tiny.AddHandler("/page/about", func(c *gotiny.TinyConnection){
+		c.WriteString( "Special about page!" )
 	})
 	tiny.AddHandler("/page/<page_id>", func(c *gotiny.TinyConnection){
-		c.Write( fmt.Sprint(c.Vars, "\n") )
+		c.WriteString( fmt.Sprint(c.Vars, "\n") )
 	})
 	tiny.AddHandler("/page/<page_id>/info", func(c *gotiny.TinyConnection){
-		c.Write( fmt.Sprint("Student Info:", c.Vars, "\n") )
+		c.WriteString( fmt.Sprint("Student Info:", c.Vars, "\n") )
 	})
+
+
+	gotiny.OpenBrowser("http://localhost:8081")
+
+	// go func() {
+	// 	var cmd *exec.Cmd = exec.Command("open", HTTPAddr)
+	// 	cmd.Run()
+	// }()
+
+
 
 	// start the server. Woohoo!
 	tiny.Start()
 
-	go func() {
-		var cmd *exec.Cmd = exec.Command("open", hostUrl)
-		cmd.Run()
-	}()
+
 }
