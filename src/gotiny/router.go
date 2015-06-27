@@ -2,8 +2,8 @@ package gotiny
 
 import (
 	"fmt"
-	"strings"
 	"regexp"
+	"strings"
 )
 
 // Route defines each route
@@ -11,27 +11,27 @@ import (
 // and return a map with vars
 
 type Route struct {
-	format string
+	format         string
 	variablesNames []string
-	regexp *regexp.Regexp
+	regexp         *regexp.Regexp
 }
 
-func (route *Route) Match (URL string) map[string]string {
-	URL = strings.Trim(URL,"/")
+func (route *Route) Match(URL string) map[string]string {
+	URL = strings.Trim(URL, "/")
 	URL = fmt.Sprintf("/%s/", URL)
 	matches := route.regexp.MatchString(URL)
 	if matches {
 		fmt.Println("Accessing ", URL, " : ", matches)
-		routeExtractedVars := route.regexp.FindAllStringSubmatch(URL,100)
-		var routeVars []string;
+		routeExtractedVars := route.regexp.FindAllStringSubmatch(URL, 100)
+		var routeVars []string
 		if len(routeExtractedVars) == 1 {
 			routeVars = routeExtractedVars[0]
-			if len(routeVars) == len(route.variablesNames) + 1 {
+			if len(routeVars) == len(route.variablesNames)+1 {
 				routeVars = routeVars[1:]
 			}
 		}
 
-		var variableMapping map[string]string;
+		var variableMapping map[string]string
 		if len(route.variablesNames) == len(routeVars) {
 			variableMapping = make(map[string]string)
 			for i := range route.variablesNames {
@@ -55,19 +55,19 @@ func NewRoute(routeFormat string) *Route {
 	// Construct regexp
 	routeRegex := routeFormat
 	variablesRegexp, _ := regexp.Compile("<(.*?)>")
-	variablesTags := variablesRegexp.FindAllString(routeFormat,100)
-	variablesNames := make([]string,0)
+	variablesTags := variablesRegexp.FindAllString(routeFormat, 100)
+	variablesNames := make([]string, 0)
 	for i := range variablesTags {
 		// Replace <var> with (.*?) in the regexp
 		// and store it in the variablesNames slice/array
 		varName := variablesTags[i]
-		varNameStripped := strings.Trim(varName,"\\/<>")
+		varNameStripped := strings.Trim(varName, "\\/<>")
 		variablesNames = append(variablesNames, varNameStripped)
 
-		routeRegex = strings.Replace( routeRegex, varName, varRegex, 1 )
+		routeRegex = strings.Replace(routeRegex, varName, varRegex, 1)
 	}
 	route.variablesNames = variablesNames
-	routeRegex = fmt.Sprint(routeRegex,"/$")
+	routeRegex = fmt.Sprint(routeRegex, "/$")
 	// fmt.Println("REGEX >>> ", routeRegex)
 	route.regexp, _ = regexp.Compile(routeRegex)
 

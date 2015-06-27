@@ -2,8 +2,8 @@ package gotiny
 
 import (
 	"fmt"
-	"net/url"
 	"net/http"
+	"net/url"
 )
 
 /*
@@ -13,9 +13,9 @@ import (
 
 type TinyConnection struct {
 	ResponseWriter http.ResponseWriter
-	Request  *http.Request
-	Url *url.URL
-	Vars map[string]string
+	Request        *http.Request
+	Url            *url.URL
+	Vars           map[string]string
 }
 
 func (connection *TinyConnection) WriteString(content string) {
@@ -31,4 +31,3 @@ func (connection *TinyConnection) WriteHeader(header int) {
 }
 
 type TinyConnectionHandler func(*TinyConnection)
-
