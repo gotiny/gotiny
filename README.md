@@ -28,3 +28,7 @@ Gotiny features really simple and lightweight routing system
     	c.WriteString( fmt.Sprintf("<h1>This is %s</h1>", c.Vars['page_name']) );
     })
 
+## Todo
+
+- Add regex support to route variables
+- clean up web.go and merge into tinyserver.go
