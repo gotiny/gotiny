@@ -1,9 +1,68 @@
 package gotiny
 
 import (
+	"errors"
 	"fmt"
+	"net"
 	"net/http"
+	"sync"
+	"time"
 )
+
+/*
+	A custom TCP listener, that supports
+	stopping of the server
+*/
+
+type TinyTCPListener struct {
+	*net.TCPListener
+	stop chan int
+}
+
+func NewTinyTCPListener(listener net.Listener) (*TinyTCPListener, error) {
+	tcpListener, canWrapListener := listener.(*net.TCPListener)
+	if !canWrapListener {
+		return nil, errors.New("Cannot wrap listener")
+	}
+
+	ttcpl := &TinyTCPListener{}
+	ttcpl.TCPListener = tcpListener
+	ttcpl.stop = make(chan int)
+
+	return ttcpl, nil
+}
+
+func (listener *TinyTCPListener) Accept() (net.Conn, error) {
+	for {
+		listener.TCPListener.SetDeadline(time.Now().Add(time.Second))
+
+		conn, err := listener.TCPListener.Accept()
+
+		fmt.Println("> Accept()")
+
+		select {
+		case <-listener.stop:
+			// Channel has been closed.
+			// Stop processing requests
+			return nil, errors.New("Server was stopped")
+		default:
+			// Channel still open
+		}
+
+		if err != nil {
+			netErr, ok := err.(net.Error)
+
+			// Verify if error is caused by timeout
+			// and not due to any other error raised in Accept()
+			if ok && netErr.Timeout() && netErr.Temporary() {
+				continue
+			}
+		}
+
+		// If any other err, or success, return them
+		return conn, err
+	}
+}
 
 /*
 	A really really simple go http server
@@ -14,6 +73,9 @@ type TinyServer struct {
 	Addr   string
 	Server *http.Server
 	Mux    *http.ServeMux
+
+	Listener *TinyTCPListener
+	Waiter   sync.WaitGroup
 
 	Routes   []*Route
 	Handlers []TinyConnectionHandler
@@ -55,7 +117,29 @@ func (tiny *TinyServer) Start() {
 
 	fmt.Println("Starting server at : ", tiny.Server.Addr)
 
-	tiny.Server.ListenAndServe()
+	defaultListener, err := net.Listen("tcp", tiny.Server.Addr)
+	if err == nil {
+		// Dispatch the server to another go routine
+		// go func() {
+		tiny.Waiter.Add(1)
+		defer tiny.Waiter.Done()
+
+		fmt.Println("> NewTinyTCPListener()")
+		tiny.Listener, _ = NewTinyTCPListener(defaultListener)
+		tiny.Server.Serve(tiny.Listener)
+		// fmt.Println("> listener ended")
+		// }();
+	} else {
+		panic(err)
+	}
+}
+
+func (tiny *TinyServer) Stop() {
+	close(tiny.Listener.stop)
+}
+
+func (tiny *TinyServer) Waitup() {
+	tiny.Waiter.Wait()
 }
 
 func NewTinyServer(Addr string) *TinyServer {

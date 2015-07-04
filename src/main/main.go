@@ -22,6 +22,12 @@ func main() {
 	tiny.AddHandler("/", func(c *gotiny.TinyConnection) {
 		c.WriteString("<h1>Hey there!</h1>")
 	})
+	tiny.AddHandler("/stop", func(c *gotiny.TinyConnection) {
+		c.WriteString("<h1>Stopping</h1>")
+		go func() {
+			tiny.Stop()
+		}()
+	})
 	tiny.AddHandler("/page/about", func(c *gotiny.TinyConnection) {
 		c.WriteString("Special about page!")
 	})
@@ -40,6 +46,9 @@ func main() {
 	// }()
 
 	// start the server. Woohoo!
+
 	tiny.Start()
+
+	tiny.Waitup()
 
 }
